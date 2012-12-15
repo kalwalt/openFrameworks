@@ -41,6 +41,7 @@
 #include "ofTexture.h"
 #include "ofVbo.h"
 #include "ofVboMesh.h"
+#include "ofFog.h"
 
 //--------------------------
 // graphics
