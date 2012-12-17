@@ -723,6 +723,8 @@ ofTargetPlatform ofGetTargetPlatform(){
         return OF_TARGET_LINUX64;
     } else if(Poco::icompare(arch,"armv6l")==0) {
         return OF_TARGET_LINUXARMV6L;
+    } else if(Poco::icompare(arch,"armv7l")==0) {
+        return OF_TARGET_LINUXARMV7L;
     } else {
         return OF_TARGET_LINUX;
     }
