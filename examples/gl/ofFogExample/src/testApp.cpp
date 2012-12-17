@@ -104,7 +104,7 @@ void testApp::draw(){
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
 
-   if( key == 'h' ){
+    if( key == 'h' ){
 		bHide = !bHide;
 	}
 	if(key == 's') {
