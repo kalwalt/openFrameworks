@@ -52,7 +52,7 @@ void testApp::draw(){
 
 	glEnable (GL_DEPTH_TEST);
 
-	 //fake back wall
+	 //fake back wall these lines do nothing....
 	ofSetColor(20, 20, 20);
 	ofSetPolyMode(OF_QUADS);
 	ofBeginShape();
@@ -76,7 +76,7 @@ void testApp::draw(){
 
 
 
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
     //lets tumble the world with the mouse
     glPushMatrix();
 
@@ -89,7 +89,7 @@ void testApp::draw(){
 
         ofSetColor(0, 255, 255, 255);
         squirrelModel.draw();
-//squirrelModel.draWireframe();
+	//squirrelModel.draWireframe();
     glPopMatrix();
 
     ofSetHexColor(0x000000);
