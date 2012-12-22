@@ -49,7 +49,32 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
+
 	glEnable (GL_DEPTH_TEST);
+
+	 //fake back wall
+	ofSetColor(20, 20, 20);
+	ofSetPolyMode(OF_QUADS);
+	ofBeginShape();
+		ofVertex(0.0, ofGetHeight(), -600);
+		ofVertex(0.0, ofGetHeight(), -600);
+        	ofVertex(ofGetWidth(), ofGetHeight(), -600);
+        	ofVertex(ofGetWidth(), 0, -600);
+        	ofVertex(0, 0, -600);
+	ofEndShape();
+	
+	 //fake wall
+	ofSetPolyMode(OF_QUADS);
+	ofSetColor(50, 50, 50);
+   	ofBeginShape();
+      		ofVertex(0.0, ofGetHeight(), 0);
+        	ofVertex(ofGetWidth(), ofGetHeight(), 0);
+        	ofVertex(ofGetWidth(), ofGetHeight(), -600);
+        	ofVertex(0, ofGetHeight(), -600);
+    	ofEndShape();
+
+
+
 /*	 //fake back wall
     ofSetColor(20, 20, 20);
     glBegin(GL_QUADS);
