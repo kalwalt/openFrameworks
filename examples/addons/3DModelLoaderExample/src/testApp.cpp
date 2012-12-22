@@ -75,24 +75,7 @@ void testApp::draw(){
 
 
 
-/*	 //fake back wall
-    ofSetColor(20, 20, 20);
-    glBegin(GL_QUADS);
-        glVertex3f(0.0, ofGetHeight(), -600);
-        glVertex3f(ofGetWidth(), ofGetHeight(), -600);
-        glVertex3f(ofGetWidth(), 0, -600);
-        glVertex3f(0, 0, -600);
-    glEnd();
 
-    //fake wall
-    ofSetColor(50, 50, 50);
-    glBegin(GL_QUADS);
-        glVertex3f(0.0, ofGetHeight(), 0);
-        glVertex3f(ofGetWidth(), ofGetHeight(), 0);
-        glVertex3f(ofGetWidth(), ofGetHeight(), -600);
-        glVertex3f(0, ofGetHeight(), -600);
-    glEnd();
-*/
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //lets tumble the world with the mouse
     glPushMatrix();
