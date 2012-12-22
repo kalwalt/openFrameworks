@@ -54,7 +54,7 @@ void testApp::draw(){
 
 	 //fake back wall these lines do nothing....
 	ofSetColor(20, 20, 20);
-	ofSetPolyMode(OF_QUADS);
+	//ofSetPolyMode(OF_QUADS);
 	ofBeginShape();
 		ofVertex(0.0, ofGetHeight(), -600);
 		ofVertex(0.0, ofGetHeight(), -600);
@@ -64,7 +64,7 @@ void testApp::draw(){
 	ofEndShape();
 	
 	 //fake wall
-	ofSetPolyMode(OF_QUADS);
+	//ofSetPolyMode(OF_QUADS);
 	ofSetColor(50, 50, 50);
    	ofBeginShape();
       		ofVertex(0.0, ofGetHeight(), 0);
