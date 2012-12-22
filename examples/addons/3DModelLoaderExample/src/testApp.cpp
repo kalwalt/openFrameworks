@@ -50,10 +50,12 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
 
-	glEnable (GL_DEPTH_TEST);
+	
 	glCullFace(GL_BACK);
 	glEnable(GL_CULL_FACE);
-
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
+	glEnable (GL_DEPTH_TEST);
 	 //fake back wall these lines do nothing....
 	ofSetColor(20, 20, 20);
 	//ofSetPolyMode(OF_QUADS);
