@@ -29,7 +29,7 @@ void testApp::setup(){
 
     //load the squirrel model - the 3ds and the texture file need to be in the same folder
     squirrelModel.loadModel("squirrel/NewSquirrel.3ds", 20);
-	//squirrelModel.loadModel("monkey/monkey.3ds", 100);
+	
 
     //you can create as many rotations as you want
     //choose which axis you want it to effect
@@ -68,7 +68,7 @@ void testApp::draw(){
         glVertex3f(0, ofGetHeight(), -600);
     glEnd();
 */
-//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //lets tumble the world with the mouse
     glPushMatrix();
 
