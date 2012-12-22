@@ -51,6 +51,8 @@ void testApp::update(){
 void testApp::draw(){
 
 	glEnable (GL_DEPTH_TEST);
+	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
 
 	 //fake back wall these lines do nothing....
 	ofSetColor(20, 20, 20);
