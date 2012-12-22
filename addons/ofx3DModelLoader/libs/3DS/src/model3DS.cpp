@@ -500,140 +500,135 @@ void mesh3DS::sortFacesByMaterial(){
 	//std::cout<<"numUnassignedFaces: "<<numUnassignedFaces<<std::endl;
 }
 
-void mesh3DS::draw(){
-
-	assert(getNumFaces()!=0);
-
-    int face, numFaces, vertexIndex, texcoordIndex;
-	GLuint materialFaces; //GL_FRONT or GL_FRONT_AND_BACK
-
-	std::map<std::string, std::vector<ushort> >::iterator materialsIter;
-	for(materialsIter=m_materialFaces.begin(); materialsIter!=m_materialFaces.end(); ++materialsIter){
-		const material3DS& currentMaterial = m_parentModel->getMaterial(materialsIter->first);
-
-		// Bind texture map (if any)
-		bool hasTextureMap = currentMaterial.hasTextureMap();
-		if(hasTextureMap) {
-			glBindTexture(GL_TEXTURE_2D, currentMaterial.getTextureMapId());
-		}
-		else 
-			glBindTexture(GL_TEXTURE_2D, 0);
-
-		const GLfloat *specular = currentMaterial.getSpecularColor();
-		float shininess = currentMaterial.getShininess();
-		float adjustedSpecular[4] = {specular[0]*shininess, specular[1]*shininess, specular[2]*shininess, 1};
-
-		glPushAttrib(GL_LIGHTING_BIT);
-		if(currentMaterial.isTwoSided()){
-			glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,1);
-			materialFaces = GL_FRONT_AND_BACK;
-		}
-		else{
-			glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,0);
-			materialFaces = GL_FRONT;
-		}
-
-		// Apply material colors
-		if(glIsEnabled(GL_LIGHTING)){
-			//const GLfloat matZero[4]={0,0,0,0};
-			const GLfloat matOne[4]={1,1,1,1};
-			if(hasTextureMap){ //replace color with texture, but keep lighting contribution
-				glMaterialfv(materialFaces, GL_DIFFUSE, matOne);
-			}
-			else glMaterialfv(materialFaces, GL_DIFFUSE, currentMaterial.getDiffuseColor());
-			glMaterialfv(materialFaces, GL_AMBIENT, currentMaterial.getAmbientColor());
-			glMaterialfv(materialFaces, GL_SPECULAR, adjustedSpecular);
-			glMaterialf(materialFaces, GL_SHININESS, 128.f * currentMaterial.getSpecularExponent());
-		}
-		else glColor3fv(currentMaterial.getDiffuseColor());
-
-		const std::vector<ushort> *currentMatFaces = &(materialsIter->second);
-		numFaces = (int)currentMatFaces->size(); //number of faces in this material
-
-		switch(m_drawMode){
-			case DRAW_IMMEDIATE_MODE:
-
-				glBegin(GL_TRIANGLES);
-				for(face=0; face<numFaces; face+=3){
-					if(hasTextureMap){
-						texcoordIndex = (*currentMatFaces)[face]*2;
-						glTexCoord2f(m_texcoords[texcoordIndex], m_texcoords[texcoordIndex+1]);
-					}
-					vertexIndex = (*currentMatFaces)[face]*3;
-					glNormal3f(m_normals[vertexIndex], m_normals[vertexIndex+1], m_normals[vertexIndex+2]);
-					glVertex3f(m_vertices[vertexIndex], m_vertices[vertexIndex+1], m_vertices[vertexIndex+2]);
-
-					if(hasTextureMap){
-						texcoordIndex = (*currentMatFaces)[face+1]*2;
-						glTexCoord2f(m_texcoords[texcoordIndex], m_texcoords[texcoordIndex+1]);
-					}
-					vertexIndex = (*currentMatFaces)[face+1]*3;
-					glNormal3f(m_normals[vertexIndex], m_normals[vertexIndex+1], m_normals[vertexIndex+2]);
-					glVertex3f(m_vertices[vertexIndex], m_vertices[vertexIndex+1], m_vertices[vertexIndex+2]);
-
-					if(hasTextureMap){
-						texcoordIndex = (*currentMatFaces)[face+2]*2;
-						glTexCoord2f(m_texcoords[texcoordIndex], m_texcoords[texcoordIndex+1]);
-					}
-					vertexIndex = (*currentMatFaces)[face+2]*3;
-					glNormal3f(m_normals[vertexIndex], m_normals[vertexIndex+1], m_normals[vertexIndex+2]);
-					glVertex3f(m_vertices[vertexIndex], m_vertices[vertexIndex+1], m_vertices[vertexIndex+2]);
-				}
-				glEnd();
-
-				break;
-
-			case DRAW_VERTEX_ARRAY:
-
-				glEnableClientState( GL_VERTEX_ARRAY );
-				glEnableClientState( GL_NORMAL_ARRAY );
-
-				if(hasTextureMap){
-					glTexCoordPointer( 2, GL_FLOAT, 0, &m_texcoords[0] );
-					glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-				}
-
-				glVertexPointer( 3, GL_FLOAT, 0, &m_vertices[0] );
-				glNormalPointer(GL_FLOAT, 0, &m_normals[0] );
-				glDrawElements(GL_TRIANGLES, numFaces, GL_UNSIGNED_SHORT, &(materialsIter->second[0]));
-
-				glDisableClientState( GL_VERTEX_ARRAY );
-				glDisableClientState( GL_NORMAL_ARRAY );
-				if(hasTextureMap){
-					glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-				}
-
-				break;
-
-
-			case DRAW_VBO:
-
-				glGenBuffers( 1 , &m_verticesArrayId );
-				glBindBuffer( GL_ARRAY_BUFFER , m_verticesArrayId );
-				glBufferData( GL_ARRAY_BUFFER , m_vertices.size() * sizeof( float ) , &m_vertices[0] , GL_STATIC_DRAW );
-
-				glGenBuffers( 1 , &m_normalsArrayId );
-				glBindBuffer( GL_ARRAY_BUFFER , m_normalsArrayId );
-				glBufferData( GL_ARRAY_BUFFER , m_normals.size() * sizeof( float ) , &m_normals[0] , GL_STATIC_DRAW );
-
-				if(hasTextureMap){
-					glGenBuffers( 1 , &m_texcoordsArrayId );
-					glBindBuffer( GL_ARRAY_BUFFER , m_texcoordsArrayId );
-					glBufferData( GL_ARRAY_BUFFER , m_texcoords.size() * sizeof( float ) , &m_texcoords[0] , GL_STATIC_DRAW );
-				}
-
-				//vPos = getAttribLocation( 
-
-				break;
-
-			default:
-				std::cout<<"[3DS] ERROR: Invalid mesh draw mode specified"<<std::endl;
-				break;
-		}
-
-		glPopAttrib(); // GL_LIGHTING_BIT
-	}
-}
+    void mesh3DS::draw(){  
+      
+        // Use GL_NORMALIZE if using the scale function - otherwise the normals/lighting goes crazy  
+        glEnable(GL_NORMALIZE);  
+        glEnable(GL_DEPTH_TEST);  
+          
+        assert(getNumFaces()!=0);  
+      
+        //int face, numFaces, vertexIndex, texcoordIndex;  
+        int numFaces;  
+          
+        GLuint materialFaces; //GL_FRONT or GL_FRONT_AND_BACK  
+      
+        std::map<std::string, std::vector<ushort> >::iterator materialsIter;  
+        for(materialsIter=m_materialFaces.begin(); materialsIter!=m_materialFaces.end(); ++materialsIter){  
+            const material3DS& currentMaterial = m_parentModel->getMaterial(materialsIter->first);  
+              
+            // Bind texture map (if any)  
+            bool hasTextureMap = currentMaterial.hasTextureMap();  
+            if(hasTextureMap) glBindTexture(GL_TEXTURE_2D, currentMaterial.getTextureMapId());  
+            else glBindTexture(GL_TEXTURE_2D, 0);  
+      
+            const GLfloat *specular = currentMaterial.getSpecularColor();  
+            float shininess = currentMaterial.getShininess();  
+            float adjustedSpecular[4] = {specular[0]*shininess, specular[1]*shininess, specular[2]*shininess, 1};  
+      
+            //glPushAttrib(GL_LIGHTING_BIT);  
+              
+            materialFaces = GL_FRONT_AND_BACK;  
+            /*  In OpenGL ES, the GL_FRONT_AND_BACK flag is the only flag that can be passed. 
+            if(currentMaterial.isTwoSided()){ 
+                glLightModelf(GL_LIGHT_MODEL_TWO_SIDE,1); 
+                materialFaces = GL_FRONT_AND_BACK; 
+            } 
+            else{ 
+                glLightModelf(GL_LIGHT_MODEL_TWO_SIDE,0); 
+                materialFaces = GL_FRONT; 
+            } 
+             */  
+      
+            // Apply material colors  
+            if(glIsEnabled(GL_LIGHTING)){  
+                //const GLfloat matZero[4]={0,0,0,0};  
+                const GLfloat matOne[4]={1,1,1,1};  
+                if(hasTextureMap){ //replace color with texture, but keep lighting contribution  
+                    glMaterialfv(materialFaces, GL_DIFFUSE, matOne);  
+                }  
+                else glMaterialfv(materialFaces, GL_DIFFUSE, currentMaterial.getDiffuseColor());  
+                glMaterialfv(materialFaces, GL_AMBIENT, currentMaterial.getAmbientColor());  
+                glMaterialfv(materialFaces, GL_SPECULAR, adjustedSpecular);  
+                glMaterialf(materialFaces, GL_SHININESS, 128.f * currentMaterial.getSpecularExponent());  
+            }  
+            else glColor4f(currentMaterial.getDiffuseColor()[0], currentMaterial.getDiffuseColor()[1], currentMaterial.getDiffuseColor()[2], 1.0f);  
+      
+            const std::vector<ushort> *currentMatFaces = &(materialsIter->second);  
+            numFaces = (int)currentMatFaces->size(); //number of faces in this material  
+      
+              
+            switch(m_drawMode){  
+                /* This is never called it seems so lets not bother making it ES compatible 
+                case DRAW_IMMEDIATE_MODE: 
+     
+                    glBegin(GL_TRIANGLES); 
+                    for(face=0; face<numFaces; face+=3){ 
+                        if(hasTextureMap){ 
+                            texcoordIndex = (*currentMatFaces)[face]*2; 
+                            glTexCoord2f(m_texcoords[texcoordIndex], m_texcoords[texcoordIndex+1]); 
+                        } 
+                        vertexIndex = (*currentMatFaces)[face]*3; 
+                        glNormal3f(m_normals[vertexIndex], m_normals[vertexIndex+1], m_normals[vertexIndex+2]); 
+                        glVertex3f(m_vertices[vertexIndex], m_vertices[vertexIndex+1], m_vertices[vertexIndex+2]); 
+     
+                        if(hasTextureMap){ 
+                            texcoordIndex = (*currentMatFaces)[face+1]*2; 
+                            glTexCoord2f(m_texcoords[texcoordIndex], m_texcoords[texcoordIndex+1]); 
+                        } 
+                        vertexIndex = (*currentMatFaces)[face+1]*3; 
+                        glNormal3f(m_normals[vertexIndex], m_normals[vertexIndex+1], m_normals[vertexIndex+2]); 
+                        glVertex3f(m_vertices[vertexIndex], m_vertices[vertexIndex+1], m_vertices[vertexIndex+2]); 
+     
+                        if(hasTextureMap){ 
+                            texcoordIndex = (*currentMatFaces)[face+2]*2; 
+                            glTexCoord2f(m_texcoords[texcoordIndex], m_texcoords[texcoordIndex+1]); 
+                        } 
+                        vertexIndex = (*currentMatFaces)[face+2]*3; 
+                        glNormal3f(m_normals[vertexIndex], m_normals[vertexIndex+1], m_normals[vertexIndex+2]); 
+                        glVertex3f(m_vertices[vertexIndex], m_vertices[vertexIndex+1], m_vertices[vertexIndex+2]); 
+                    } 
+                    glEnd(); 
+     
+                    break; 
+                */  
+                  
+                case DRAW_VERTEX_ARRAY:  
+                      
+                    glEnableClientState( GL_VERTEX_ARRAY );  
+                    glEnableClientState( GL_NORMAL_ARRAY );  
+      
+                    if(hasTextureMap){  
+                        glTexCoordPointer( 2, GL_FLOAT, 0, &m_texcoords[0] );  
+                        glEnableClientState( GL_TEXTURE_COORD_ARRAY );  
+                    }  
+      
+                    glVertexPointer( 3, GL_FLOAT, 0, &m_vertices[0] );  
+                    glNormalPointer(GL_FLOAT, 0, &m_normals[0] );  
+                    glDrawElements(GL_TRIANGLES, numFaces, GL_UNSIGNED_SHORT, &(materialsIter->second[0]));  
+      
+                    glDisableClientState( GL_VERTEX_ARRAY );  
+                    glDisableClientState( GL_NORMAL_ARRAY );  
+                    if(hasTextureMap){  
+                        glDisableClientState( GL_TEXTURE_COORD_ARRAY );  
+                    }  
+      
+                    break;  
+      
+                case DRAW_VBO:  
+      
+                    break;  
+      
+                default:  
+                    std::cout<<"[3DS] ERROR: Invalid mesh draw mode specified"<<std::endl;  
+                    break;  
+            }  
+      
+            //glPopAttrib(); // GL_LIGHTING_BIT  
+        }  
+        glDisable(GL_NORMALIZE);  
+        glDisable(GL_DEPTH_TEST);  
+    }  
 
 
 void model3DS::draw(){
