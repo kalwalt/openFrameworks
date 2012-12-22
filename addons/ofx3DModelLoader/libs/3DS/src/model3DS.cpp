@@ -519,8 +519,14 @@ void mesh3DS::sortFacesByMaterial(){
               
             // Bind texture map (if any)  
             bool hasTextureMap = currentMaterial.hasTextureMap();  
-            if(hasTextureMap) glBindTexture(GL_TEXTURE_2D, currentMaterial.getTextureMapId());  
-            else glBindTexture(GL_TEXTURE_2D, 0);  
+            if(hasTextureMap){
+		glBindTexture(GL_TEXTURE_2D, currentMaterial.getTextureMapId());
+		glGenerateMipmap(GL_TEXTURE_2D); 
+		
+            }else{
+		 glBindTexture(GL_TEXTURE_2D, 0);   
+		 glGenerateMipmap(GL_TEXTURE_2D); 
+		}
       
             const GLfloat *specular = currentMaterial.getSpecularColor();  
             float shininess = currentMaterial.getShininess();  
