@@ -52,8 +52,8 @@ void testApp::update(){
 void testApp::draw(){
 
 	
-	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glDisable(GL_BLEND);
 	glEnable (GL_DEPTH_TEST);
