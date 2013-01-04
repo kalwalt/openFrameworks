@@ -10,10 +10,10 @@ GLfloat lightTwoColor[] = {0.99, 0.99, 0.99, 1.0};
 void testApp::setup(){	
 	ofBackground(255,255,255);
 		
-	ofSetVerticalSync(true);
+	//ofSetVerticalSync(true);
 
     //some model / light stuff
-    glEnable (GL_DEPTH_TEST);
+    //glEnable (GL_DEPTH_TEST);
     glShadeModel (GL_SMOOTH);
 
     /* initialize lighting */
@@ -24,11 +24,12 @@ void testApp::setup(){
     glLightfv (GL_LIGHT1, GL_DIFFUSE, lightTwoColor);
     glEnable (GL_LIGHT1);
     glEnable (GL_LIGHTING);
-    glColorMaterial (GL_FRONT_AND_BACK, GL_DIFFUSE);
-    glEnable (GL_COLOR_MATERIAL);
+    //glColorMaterial (GL_FRONT_AND_BACK, GL_DIFFUSE);
+   // glEnable (GL_COLOR_MATERIAL);
 
     //load the squirrel model - the 3ds and the texture file need to be in the same folder
     squirrelModel.loadModel("squirrel/NewSquirrel.3ds", 20);
+	
 
     //you can create as many rotations as you want
     //choose which axis you want it to effect
@@ -48,25 +49,39 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
+
 	
-	 //fake back wall
-    ofSetColor(20, 20, 20);
-    glBegin(GL_QUADS);
-        glVertex3f(0.0, ofGetHeight(), -600);
-        glVertex3f(ofGetWidth(), ofGetHeight(), -600);
-        glVertex3f(ofGetWidth(), 0, -600);
-        glVertex3f(0, 0, -600);
-    glEnd();
+	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
+	//glEnable (GL_DEPTH_TEST);
+	glDisable (GL_DEPTH_TEST);
+	 //fake back wall these lines do nothing....
+	ofSetColor(20, 20, 20);
+	//ofSetPolyMode(OF_QUADS);
+	ofBeginShape();
+		ofVertex(0.0, ofGetHeight(), -600);
+		ofVertex(0.0, ofGetHeight(), -600);
+        	ofVertex(ofGetWidth(), ofGetHeight(), -600);
+        	ofVertex(ofGetWidth(), 0, -600);
+        	ofVertex(0, 0, -600);
+	ofEndShape();
+	
+	 //fake wall
+	//ofSetPolyMode(OF_QUADS);
+	ofSetColor(50, 50, 50);
+   	ofBeginShape();
+      		ofVertex(0.0, ofGetHeight(), 0);
+        	ofVertex(ofGetWidth(), ofGetHeight(), 0);
+        	ofVertex(ofGetWidth(), ofGetHeight(), -600);
+        	ofVertex(0, ofGetHeight(), -600);
+    	ofEndShape();
 
-    //fake wall
-    ofSetColor(50, 50, 50);
-    glBegin(GL_QUADS);
-        glVertex3f(0.0, ofGetHeight(), 0);
-        glVertex3f(ofGetWidth(), ofGetHeight(), 0);
-        glVertex3f(ofGetWidth(), ofGetHeight(), -600);
-        glVertex3f(0, ofGetHeight(), -600);
-    glEnd();
 
+
+
+    
     //lets tumble the world with the mouse
     glPushMatrix();
 
@@ -77,14 +92,14 @@ void testApp::draw(){
         glRotatef(mouseX,0,1,0);
         glTranslatef(-ofGetWidth()/2,-ofGetHeight()/2,0);
 
-        ofSetColor(255, 255, 255, 255);
+        ofSetColor(0, 255, 255, 255);
         squirrelModel.draw();
-
+	//squirrelModel.draWireframe();
     glPopMatrix();
 
     ofSetHexColor(0x000000);
     ofDrawBitmapString("fps: "+ofToString(ofGetFrameRate(), 2), 10, 15);
-
+glDisable (GL_DEPTH_TEST);
 }
 
 //--------------------------------------------------------------
