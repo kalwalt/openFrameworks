@@ -10,7 +10,7 @@ GLfloat lightTwoColor[] = {0.99, 0.99, 0.99, 1.0};
 void testApp::setup(){	
 	ofBackground(255,255,255);
 		
-	//ofSetVerticalSync(true);
+	ofSetVerticalSync(true);
 
     //some model / light stuff
     //glEnable (GL_DEPTH_TEST);
@@ -28,7 +28,8 @@ void testApp::setup(){
    // glEnable (GL_COLOR_MATERIAL);
 
     //load the squirrel model - the 3ds and the texture file need to be in the same folder
-    squirrelModel.loadModel("squirrel/NewSquirrel.3ds", 20);
+   // squirrelModel.loadModel("squirrel/NewSquirrel.3ds", 20);
+    squirrelModel.loadModel("geode/geode.3DS", 4);
 	
 
     //you can create as many rotations as you want
@@ -53,10 +54,10 @@ void testApp::draw(){
 	
 	glCullFace(GL_BACK);
 	glEnable(GL_CULL_FACE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_BLEND);
-	//glEnable (GL_DEPTH_TEST);
-	glDisable (GL_DEPTH_TEST);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glDisable(GL_BLEND);
+	glEnable (GL_DEPTH_TEST);
+	//glDisable (GL_DEPTH_TEST);
 	 //fake back wall these lines do nothing....
 	ofSetColor(20, 20, 20);
 	//ofSetPolyMode(OF_QUADS);
@@ -94,7 +95,7 @@ void testApp::draw(){
 
         ofSetColor(0, 255, 255, 255);
         squirrelModel.draw();
-	//squirrelModel.draWireframe();
+	
     glPopMatrix();
 
     ofSetHexColor(0x000000);
