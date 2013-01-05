@@ -1,6 +1,6 @@
 #include "ofMain.h"
 #include "testApp.h"
-#include "ofAppGlutWindow.h"
+//#include "ofAppGlutWindow.h"
 #include "ofAppNoWindow.h"
 
 
@@ -10,12 +10,13 @@ int main(  int argc, char *argv[]  ){
    
     cout << "In main." << endl;
     
-    cout << "ofGetTargetPlatform=" << ofGetTargetPlatform() << endl;
+    //cout << "ofGetTargetPlatform=" << ofGetTargetPlatform() << endl;
     
 #ifdef TARGET_LINUX
 	if(argc==1){
-		ofAppGlutWindow window;
-		ofSetupOpenGL(&window, 1024,768, OF_WINDOW);
+		//ofAppGlutWindow window;
+		//ofSetupOpenGL(&window, 1024,768, OF_WINDOW);
+		ofSetupOpenGL( 1024,768, OF_WINDOW);
 		ofRunApp( new testApp());
 	}else{
 		ofAppNoWindow window;
@@ -33,6 +34,8 @@ int main(  int argc, char *argv[]  ){
 					app->targetsToMake.push_back( OF_TARGET_LINUX64 );
 				}else if(arg=="linuxarmv6l"){
 					app->targetsToMake.push_back( OF_TARGET_LINUXARMV6L );
+				}else if(arg=="linuxarmv7l"){
+					app->targetsToMake.push_back( OF_TARGET_LINUXARMV7L );
 				}else if(arg=="win_cb"){
 					app->targetsToMake.push_back( OF_TARGET_WINGCC );
 				}else if(arg=="vs2010"){
@@ -48,6 +51,7 @@ int main(  int argc, char *argv[]  ){
 					app->targetsToMake.push_back( OF_TARGET_LINUX );
 					app->targetsToMake.push_back( OF_TARGET_LINUX64 );
 					app->targetsToMake.push_back( OF_TARGET_LINUXARMV6L );
+					app->targetsToMake.push_back( OF_TARGET_LINUXARMV7L );
 					app->targetsToMake.push_back( OF_TARGET_WINGCC );
 					app->targetsToMake.push_back( OF_TARGET_WINVS );
 					app->targetsToMake.push_back( OF_TARGET_OSX );
@@ -64,6 +68,7 @@ int main(  int argc, char *argv[]  ){
 					cout << "--linux: generate linux project files" << endl;
 					cout << "--linux64: generate linux 64bits project files" << endl;
 					cout << "--linuxarmv6l: generate linux armv6l project files" << endl;
+					cout << "--linuxarmv7l: generate linux armv7l project files" << endl;
 					cout << "--ios: generate iOS project files" << endl;
 					cout << "--allplatforms: generate project files for all platforms" << endl;
 					cout << "--allexamples: generate project files for all examples. [pathToExample] is not needed in this case." << endl;
@@ -95,8 +100,8 @@ int main(  int argc, char *argv[]  ){
 	}
 #else 
     cout << "IN HERE!!" << endl;
-    ofAppGlutWindow window;
-    ofSetupOpenGL(&window, 1024,768, OF_WINDOW);
+    //ofAppGlutWindow window;
+    ofSetupOpenGL( 1024,768, OF_WINDOW);
     testApp * app = new testApp;
     app->buildAllExamples = false;
     ofRunApp( app );
