@@ -7,9 +7,9 @@ GLfloat lightTwoPosition[] = {-40.0, 40, 100.0, 0.0};
 GLfloat lightTwoColor[] = {0.99, 0.99, 0.99, 1.0};
 
 //--------------------------------------------------------------
-void testApp::setup(){	
+void testApp::setup(){
 	ofBackground(255,255,255);
-		
+
 	ofSetVerticalSync(true);
 
     //some model / light stuff
@@ -24,7 +24,8 @@ void testApp::setup(){
     glLightfv (GL_LIGHT1, GL_DIFFUSE, lightTwoColor);
     glEnable (GL_LIGHT1);
     glEnable (GL_LIGHTING);
-    glColorMaterial (GL_FRONT_AND_BACK, GL_DIFFUSE);
+    //glColorMaterial (GL_FRONT_AND_BACK, GL_DIFFUSE);
+
     glEnable (GL_COLOR_MATERIAL);
 
     //load the squirrel model - the 3ds and the texture file need to be in the same folder
@@ -38,6 +39,7 @@ void testApp::setup(){
     squirrelModel.setScale(0.9, 0.9, 0.9);
     squirrelModel.setPosition(ofGetWidth()/2, ofGetHeight()/2, 0);
 
+
 }
 
 //--------------------------------------------------------------
@@ -48,68 +50,74 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
-	
+
 	 //fake back wall
-    ofSetColor(20, 20, 20);
-    glBegin(GL_QUADS);
-        glVertex3f(0.0, ofGetHeight(), -600);
-        glVertex3f(ofGetWidth(), ofGetHeight(), -600);
-        glVertex3f(ofGetWidth(), 0, -600);
-        glVertex3f(0, 0, -600);
-    glEnd();
+   ofSetColor(20, 20, 20);
 
-    //fake wall
-    ofSetColor(50, 50, 50);
-    glBegin(GL_QUADS);
-        glVertex3f(0.0, ofGetHeight(), 0);
-        glVertex3f(ofGetWidth(), ofGetHeight(), 0);
-        glVertex3f(ofGetWidth(), ofGetHeight(), -600);
-        glVertex3f(0, ofGetHeight(), -600);
-    glEnd();
+   GLfloat vertices1[] = {0.0, ofGetHeight(), -600,
+          ofGetWidth(), ofGetHeight(), -600,
+          ofGetWidth(), 0, -600,
+          0, 0, -600};
 
-    //lets tumble the world with the mouse
-    glPushMatrix();
+   GLubyte indices[] = {0, 1, 2, 0, 2, 3};
 
-        //draw in middle of the screen
-        glTranslatef(ofGetWidth()/2,ofGetHeight()/2,0);
-        //tumble according to mouse
-        glRotatef(-mouseY,1,0,0);
-        glRotatef(mouseX,0,1,0);
-        glTranslatef(-ofGetWidth()/2,-ofGetHeight()/2,0);
+   glVertexPointer(3, GL_FLOAT, 0, vertices1);
+   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices);
 
-        ofSetColor(255, 255, 255, 255);
-        squirrelModel.draw();
+   //fake wall
+   ofSetColor(50, 50, 50);
+   GLfloat vertices2[] = {0, ofGetHeight(), 0,
+		   ofGetWidth(), ofGetHeight(), 0,
+		   ofGetWidth(), ofGetHeight(), -600,
+		   0, ofGetHeight(), -600
+   };
 
-    glPopMatrix();
+   glVertexPointer(3, GL_FLOAT, 0, vertices2);
+   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices);
 
-    ofSetHexColor(0x000000);
-    ofDrawBitmapString("fps: "+ofToString(ofGetFrameRate(), 2), 10, 15);
+   //lets tumble the world with the mouse
+   glPushMatrix();
+
+       //draw in middle of the screen
+       glTranslatef(ofGetWidth()/2,ofGetHeight()/2,0);
+       //tumble according to mouse
+       glRotatef(-mouseY,1,0,0);
+       glRotatef(mouseX,0,1,0);
+       glTranslatef(-ofGetWidth()/2,-ofGetHeight()/2,0);
+
+       ofSetColor(255, 255, 255, 255);
+       squirrelModel.draw();
+
+   glPopMatrix();
+
+   ofSetHexColor(0x000000);
+   ofDrawBitmapString("fps: "+ofToString(ofGetFrameRate(), 2), 10, 15);
 
 }
 
 //--------------------------------------------------------------
-void testApp::keyPressed(int key){ 
-
+void testApp::keyPressed  (int key){ 
+	
 }
 
 //--------------------------------------------------------------
 void testApp::keyReleased(int key){ 
-
+	
 }
 
 //--------------------------------------------------------------
 void testApp::mouseMoved(int x, int y ){
-
+	
 }
 
 //--------------------------------------------------------------
 void testApp::mouseDragged(int x, int y, int button){
-
+	
 }
 
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
-
+	
 }
 
 //--------------------------------------------------------------
@@ -122,12 +130,3 @@ void testApp::windowResized(int w, int h){
 
 }
 
-//--------------------------------------------------------------
-void testApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void testApp::dragEvent(ofDragInfo dragInfo){ 
-
-}

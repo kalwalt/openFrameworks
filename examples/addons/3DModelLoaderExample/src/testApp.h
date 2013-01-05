@@ -1,7 +1,11 @@
-#pragma once
+#ifndef _TEST_APP
+#define _TEST_APP
+
 
 #include "ofMain.h"
 #include "ofx3DModelLoader.h"
+
+#include <GLES/gl.h>
 
 class testApp : public ofBaseApp{
 	
@@ -18,10 +22,10 @@ class testApp : public ofBaseApp{
 		void mousePressed(int x, int y, int button);
 		void mouseReleased(int x, int y, int button);
 		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);		
 
 		ofx3DModelLoader squirrelModel;
-		
+
 };
-	
+
+#endif	
+
