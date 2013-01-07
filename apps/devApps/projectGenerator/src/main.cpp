@@ -19,8 +19,9 @@ int main(  int argc, char *argv[]  ){
 		ofSetupOpenGL( 1024,768, OF_WINDOW);
 		ofRunApp( new testApp());
 	}else{
-		ofAppNoWindow window;
-		ofSetupOpenGL(&window, 1024,768, OF_WINDOW);
+		//ofAppNoWindow window;
+		//ofSetupOpenGL(&window, 1024,768, OF_WINDOW);
+		ofSetupOpenGL( 1024,768, OF_WINDOW);
 		testApp * app = new testApp;
 		app->buildAllExamples = false;
 		app->projectPath = "";
