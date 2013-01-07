@@ -226,7 +226,7 @@ ofFileDialogResult testApp::makeNewProjectViaDialog(){
 	if( linuxcbToggle )	targetsToMake.push_back(OF_TARGET_LINUX);
 	if( linux64cbToggle )	targetsToMake.push_back(OF_TARGET_LINUX64);
 	if( linuxarmv6lcbToggle )	targetsToMake.push_back(OF_TARGET_LINUXARMV6L);
-	if( linuxarmv6lcbToggle )	targetsToMake.push_back(OF_TARGET_LINUXARMV7L);
+	if( linuxarmv7lcbToggle )	targetsToMake.push_back(OF_TARGET_LINUXARMV7L);
 
 	if( targetsToMake.size() == 0 ){
 		cout << "Error: makeNewProjectViaDialog - must specifiy a project to generate " <<endl;
