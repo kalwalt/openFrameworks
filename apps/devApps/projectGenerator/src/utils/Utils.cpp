@@ -202,6 +202,7 @@ bool isFolderNotCurrentPlatform(string folderName, string platform){
 		platforms.push_back("ios");
 		platforms.push_back("linux");
 		platforms.push_back("linux64");
+		platforms.push_back("linuxarmv7l");
 		platforms.push_back("android");
 		platforms.push_back("iphone");
 	}
