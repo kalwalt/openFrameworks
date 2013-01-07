@@ -1,6 +1,6 @@
 #pragma once
 
-#define COMMAND_LINE_ONLY
+//#define COMMAND_LINE_ONLY
 
 #include "ofMain.h"
 #include "CBLinuxProject.h"
