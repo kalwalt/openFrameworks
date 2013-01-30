@@ -1,7 +1,7 @@
 #include "ofMain.h"
 #include "testApp.h"
 //#include "ofAppGlutWindow.h"
-#include "ofAppNoWindow.h"
+//#include "ofAppNoWindow.h"
 
 
 //========================================================================
@@ -10,7 +10,7 @@ int main(  int argc, char *argv[]  ){
    
     cout << "In main." << endl;
     
-    //cout << "ofGetTargetPlatform=" << ofGetTargetPlatform() << endl;
+  ///  cout << "ofGetTargetPlatform=" << ofGetTargetPlatform() << endl;
     
 #ifdef TARGET_LINUX
 	if(argc==1){
