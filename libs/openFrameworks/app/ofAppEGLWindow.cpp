@@ -86,6 +86,11 @@ typedef struct {
 #define MOUSE_BUTTON_MIDDLE_MASK 1 << 1
 #define MOUSE_BUTTON_RIGHT_MASK  2 << 1
 
+// Additional mouse button names for XButtonEvent
+// For scroll events.
+#define Button6            6
+#define Button7            7
+
 static MouseState mb;
 
 static int string_ends_with(const char *str, const char *suffix) {
@@ -1738,7 +1743,15 @@ bool ofAppEGLWindow::readNativeMouseEvents() {
                     ofLogNotice("ofAppEGLWindow") << "readMouseEvents() : Unknown mouse axis (perhaps it's the scroll wheel?)";
                     break;
              }
+        } else if(ev.type == REL_WHEEL) {
+            // TODO: uncomment this when the time comes ...
+            //ofNotifyScrolled(0,ev.value);
+            ofLogVerbose("ofAppEGLWindow::readNativeMouseEvents") << "Scroll events are currently unsupported.";
 
+        } else if(ev.type == REL_HWHEEL) {
+            // TODO: uncomment this when the time comes ...
+            //ofNotifyScrolled(ev.value,0);
+            ofLogVerbose("ofAppEGLWindow::readNativeMouseEvents") << "Scroll events are currently unsupported.";
         } else if(ev.type == EV_KEY) {
             // only tracking three buttons now ...
             if(ev.code == BTN_LEFT) {
@@ -2146,22 +2159,82 @@ void ofAppEGLWindow::handleX11Event(const XEvent& event){
             break;
         case ButtonPress:
         case ButtonRelease:
-            mouseEvent.x = static_cast<float>(event.xbutton.x);
-            mouseEvent.y = static_cast<float>(event.xbutton.y);
-            mouseEvent.button = event.xbutton.button;
-            if (event.type == ButtonPress){
-                mouseEvent.type = ofMouseEventArgs::Pressed;
+        {
+            bool isTrackedEvent = true;
+            bool isScrollEvent = false;
+            float scrollX = 0;
+            float scrollY = 0;
+
+            // XFree86 3.3.2 and later translates mouse 
+            // wheel up/down into mouse button 4 & 5 presses
+
+            if (event.xbutton.button == Button1) {
+                mouseEvent.button = OF_MOUSE_BUTTON_LEFT;
+            } else if (event.xbutton.button == Button2) {
+                mouseEvent.button = OF_MOUSE_BUTTON_MIDDLE;
+            } else if (event.xbutton.button == Button3) {
+                mouseEvent.button = OF_MOUSE_BUTTON_RIGHT;
+            } else if (event.xbutton.button == Button4) {
+                scrollX = 0.0f;
+                scrollY = 1.0f;
+                isScrollEvent = true;
+            } else if (event.xbutton.button == Button5) {
+                scrollX = 0.0f;
+                scrollY = -1.0f;
+                isScrollEvent = true;
+            } else if (event.xbutton.button == Button6) {
+                scrollX = -1.0f;
+                scrollY = 0.0f;
+                isScrollEvent = true;
+            } else if (event.xbutton.button == Button7) {
+                scrollX = 1.0f;
+                scrollY = 0.0f;
+                isScrollEvent = true;
             } else {
-                mouseEvent.type = ofMouseEventArgs::Released;
+                isTrackedEvent = false;
             }
-            
-            ofNotifyMouseEvent(mouseEvent);
+
+            if(isTrackedEvent) {
+              if(isScrollEvent) {
+                // TODO: Uncomment this when scroll notifications
+                // are brought into the core
+                // ofNotifyScrolled(scrolDelta.x,scrollDelta.y);
+                ofLogVerbose("ofAppEGLWindow::handleX11Event") << "Scroll events are currently unsupported.";
+              } else {
+                if (event.type == ButtonPress){
+                    mouseEvent.type = ofMouseEventArgs::Pressed;
+                } else {
+                    mouseEvent.type = ofMouseEventArgs::Released;
+                }
+
+                mouseEvent.x = static_cast<float>(event.xmotion.x);
+                mouseEvent.y = static_cast<float>(event.xmotion.y);
+                ofNotifyMouseEvent(mouseEvent);
+              }
+            } else {
+              // not tracked
+              ofLogVerbose("ofAppEGLWindow::handleX11Event") << "Unknown button : " << event.xbutton.button;
+
+            }
+
             break;
+        }
         case MotionNotify:
             //cout << "motion notify" << endl;
             mouseEvent.x = static_cast<float>(event.xmotion.x);
             mouseEvent.y = static_cast<float>(event.xmotion.y);
-            mouseEvent.button = event.xbutton.button;
+            if (event.xbutton.button == Button1) {
+                mouseEvent.button = OF_MOUSE_BUTTON_LEFT;
+            } else if (event.xbutton.button == Button2) {
+                mouseEvent.button = OF_MOUSE_BUTTON_MIDDLE;
+            } else if (event.xbutton.button == Button3) {
+                mouseEvent.button = OF_MOUSE_BUTTON_RIGHT;
+            } else {
+              // untracked button
+              ofLogVerbose("ofAppEGLWindow::handleX11Event") << "Unknown button on motion: " << event.xbutton.button;
+              break;              
+            }
+
             if(ofGetMousePressed()) {
                 mouseEvent.type = ofMouseEventArgs::Dragged;
             } else {
