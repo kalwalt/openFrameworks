@@ -256,6 +256,36 @@ ofAppEGLWindow::~ofAppEGLWindow() {
 }
 
 //------------------------------------------------------------
+EGLDisplay ofAppEGLWindow::getEglDisplay() const {
+  return eglDisplay;
+}
+
+//------------------------------------------------------------
+EGLSurface ofAppEGLWindow::getEglSurface() const {
+  return eglSurface;
+}
+
+//------------------------------------------------------------
+EGLContext ofAppEGLWindow::getEglContext() const {
+  return eglContext;
+}
+
+//------------------------------------------------------------
+EGLConfig ofAppEGLWindow::getEglConfig() const {
+  return eglConfig;
+}
+
+//------------------------------------------------------------
+EGLint ofAppEGLWindow::getEglVersionMajor () const {
+  return eglVersionMajor;
+}
+
+//------------------------------------------------------------
+EGLint ofAppEGLWindow::getEglVersionMinor() const {
+  return eglVersionMinor;
+}
+
+//------------------------------------------------------------
 void ofAppEGLWindow::init(Settings _settings) {
     terminate      = false;
 
@@ -771,7 +801,7 @@ void ofAppEGLWindow::runAppViaInfiniteLoop(ofBaseApp *appPtr) {
 }
 
 //------------------------------------------------------------
-bool ofAppEGLWindow::setupNativeEvents() {
+void ofAppEGLWindow::setupNativeEvents() {
   setupNativeUDev();
   setupNativeMouse();
   setupNativeKeyboard();
@@ -779,7 +809,7 @@ bool ofAppEGLWindow::setupNativeEvents() {
 }
 
 //------------------------------------------------------------
-bool ofAppEGLWindow::destroyNativeEvents() {
+void ofAppEGLWindow::destroyNativeEvents() {
   destroyNativeUDev();
   destroyNativeMouse(); 
   destroyNativeKeyboard(); 
@@ -1234,6 +1264,19 @@ void ofAppEGLWindow::display() {
   
   if(!isUsingX11) {
     if(bShowCursor){
+        
+        GLboolean bIsDepthTestEnabled = GL_FALSE;
+        glGetBooleanv(GL_DEPTH_TEST, &bIsDepthTestEnabled);
+
+        if(bIsDepthTestEnabled == GL_TRUE) {
+            glDisable(GL_DEPTH_TEST);
+        }
+        
+        bool isUsingNormalizedTexCoords = ofGetUsingNormalizedTexCoords();
+        if(isUsingNormalizedTexCoords) {
+          ofDisableNormalizedTexCoords();
+        }
+        
         ofPushStyle();
         ofEnableAlphaBlending();
         ofDisableTextureEdgeHack();
@@ -1242,6 +1285,15 @@ void ofAppEGLWindow::display() {
         ofEnableTextureEdgeHack();
         //TODO: we need a way of querying the previous state of texture hack
         ofPopStyle();
+        
+        if(bIsDepthTestEnabled == GL_TRUE) {
+            glEnable(GL_DEPTH_TEST);
+        }
+
+        if(isUsingNormalizedTexCoords) {
+          ofEnableNormalizedTexCoords();
+        }
+
 
     }
    }
@@ -1312,7 +1364,7 @@ void ofAppEGLWindow::threadedFunction(){
 //------------------------------------------------------------
 
 //------------------------------------------------------------
-bool ofAppEGLWindow::setupNativeUDev() {
+void ofAppEGLWindow::setupNativeUDev() {
  
     udev = udev_new(); // create new udev object
     if(!udev) {
@@ -1328,25 +1380,29 @@ bool ofAppEGLWindow::setupNativeUDev() {
         udev_fd = udev_monitor_get_fd(mon);
     }
 
-    return udev_fd > -1;
+    if(udev_fd < 0) {
+        ofLogError("ofAppEGLWindow") << "setupUDev() : did not create udev object. udev_fd < 0";
+    }
+
 }
 
 //------------------------------------------------------------
-bool ofAppEGLWindow::destroyNativeUDev() {
+void ofAppEGLWindow::destroyNativeUDev() {
     udev_unref(udev); // clean up
 }
 
 
 //------------------------------------------------------------
-bool ofAppEGLWindow::setupNativeMouse() {
+void ofAppEGLWindow::setupNativeMouse() {
     struct dirent **eps;
     int n = scandir("/dev/input/by-path/", &eps, filter_mouse, dummy_sort);
 
     // make sure that we found an appropriate entry
     if(n >= 0 && eps != 0 && eps[0] != 0) {
-        char devicePathBuffer[256];
-        sprintf(devicePathBuffer,"/dev/input/by-path/%s\0",eps[0]->d_name);
-        mouse_fd = open(devicePathBuffer, O_RDONLY | O_NONBLOCK);
+        string devicePathBuffer;
+        devicePathBuffer.append("/dev/input/by-path/");
+        devicePathBuffer.append(eps[0]->d_name);
+        mouse_fd = open(devicePathBuffer.c_str(), O_RDONLY | O_NONBLOCK);
         ofLogNotice("ofAppEGLWindow") << "setupMouse() : mouse_fd= " <<  mouse_fd << " devicePath=" << devicePathBuffer;
     } else {
         ofLogNotice("ofAppEGLWindow") << "setupMouse() : Unabled to find mouse.";
@@ -1362,19 +1418,23 @@ bool ofAppEGLWindow::setupNativeMouse() {
 
     mb.mouseButtonState = 0;
 
-    return mouse_fd > -1;
+    if(mouse_fd < 0) {
+        ofLogError("ofAppEGLWindow") << "setupMouse() : did not open mouse. mouse_fd < 0";
+    }
+
 }
 
 //------------------------------------------------------------
-bool ofAppEGLWindow::setupNativeKeyboard() {
+void ofAppEGLWindow::setupNativeKeyboard() {
     struct dirent **eps;
     int n = scandir("/dev/input/by-path/", &eps, filter_kbd, dummy_sort);
 
     // make sure that we found an appropriate entry
     if(n >= 0 && eps != 0 && eps[0] != 0) {
-        char devicePathBuffer[256];
-        sprintf(devicePathBuffer,"/dev/input/by-path/%s\0",eps[0]->d_name);
-        keyboard_fd=open(devicePathBuffer, O_RDONLY | O_NONBLOCK);
+        string devicePathBuffer;
+        devicePathBuffer.append("/dev/input/by-path/");
+        devicePathBuffer.append(eps[0]->d_name);
+        keyboard_fd = open(devicePathBuffer.c_str(), O_RDONLY | O_NONBLOCK);
         ofLogNotice("ofAppEGLWindow") << "setupKeyboard() : keyboard_fd= " <<  keyboard_fd << " devicePath=" << devicePathBuffer;
     } else {
         ofLogWarning("ofAppEGLWindow") << "setupKeyboard() : Unabled to find keyboard.";
@@ -1401,18 +1461,20 @@ bool ofAppEGLWindow::setupNativeKeyboard() {
     kb.shiftPressed = false;
     kb.capsLocked = false;
     
-    return keyboard_fd > -1;
+    if(keyboard_fd < 0) {
+        ofLogError("ofAppEGLWindow") << "setupKeyboard() : did not open keyboard. keyboard_fd < 0";
+    }
 }
 
 //------------------------------------------------------------
-bool ofAppEGLWindow::destroyNativeMouse() {
+void ofAppEGLWindow::destroyNativeMouse() {
     if(mouse_fd >= 0) {
         // nothing to do
     }
 }
 
 //------------------------------------------------------------
-bool ofAppEGLWindow::destroyNativeKeyboard() {
+void ofAppEGLWindow::destroyNativeKeyboard() {
     ofLogNotice("ofAppEGLWindow") << "destroyNativeKeyboard()";
 
     if (keyboard_fd >= 0) {
@@ -1424,7 +1486,7 @@ bool ofAppEGLWindow::destroyNativeKeyboard() {
 
 
 //------------------------------------------------------------
-bool ofAppEGLWindow::readNativeUDevEvents() {
+void ofAppEGLWindow::readNativeUDevEvents() {
     // look for devices being attatched / detatched
 
     fd_set fds;
@@ -1444,6 +1506,8 @@ bool ofAppEGLWindow::readNativeUDevEvents() {
            select() ensured that this will not block. */
         dev = udev_monitor_receive_device(mon);
         if (dev) {
+            // TODO: finish auto connect
+            // TODO: update ofLog
             printf("Got Device\n");
             printf("   Node: %s\n", udev_device_get_devnode(dev));
             printf("   Subsystem: %s\n", udev_device_get_subsystem(dev));
@@ -1458,7 +1522,7 @@ bool ofAppEGLWindow::readNativeUDevEvents() {
 }
 
 //------------------------------------------------------------
-bool ofAppEGLWindow::readNativeKeyboardEvents() {
+void ofAppEGLWindow::readNativeKeyboardEvents() {
     // http://www.diegm.uniud.it/loghi/CE2/kbd.pdf
     // http://cgit.freedesktop.org/~whot/evtest/plain/evtest.c
     // https://strcpy.net/b/archives/2010/11/17/abusing_the_linux_input_subsystem/index.html
@@ -1485,8 +1549,6 @@ bool ofAppEGLWindow::readNativeKeyboardEvents() {
             } else {
                 // unknown ev.value
             }
-
-            bool shouldMapKey = false;
 
             switch (ev.code) {
                 case KEY_RIGHTSHIFT:
@@ -1643,12 +1705,10 @@ bool ofAppEGLWindow::readNativeKeyboardEvents() {
 
         nBytesRead = read(keyboard_fd, &ev,sizeof(struct input_event));
     }
-
-    return true;
 }
 
 //------------------------------------------------------------
-bool ofAppEGLWindow::readNativeMouseEvents() {
+void ofAppEGLWindow::readNativeMouseEvents() {
     // http://cgit.freedesktop.org/~whot/evtest/plain/evtest.c
     struct input_event ev;
 
@@ -1789,8 +1849,6 @@ bool ofAppEGLWindow::readNativeMouseEvents() {
 
         nBytesRead = read(mouse_fd, &ev,sizeof(struct input_event));
     }
-
-    return true;
 
 }
 
