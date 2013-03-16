@@ -697,7 +697,6 @@ void rotateMouseXY(ofOrientation orientation, int &x, int &y) {
 void ofAppGlutWindow::mouse_cb(int glut_button, int state, int x, int y) {
 	rotateMouseXY(orientation, x, y);
  
-
     int ofMouseButton = button;
     
     if(button == GLUT_LEFT_BUTTON) {
